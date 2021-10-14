@@ -1,0 +1,12 @@
+FROM reg.cnrancher.com/cnrancher/dapper-base:golang-1.15.6-alpine3.12
+
+ENV DAPPER_ENV REPO TAG DRONE_TAG
+ENV DAPPER_SOURCE /go/src/github.com/cnrancher/watcher/
+ENV DAPPER_OUTPUT ./bin ./dist
+ENV DAPPER_DOCKER_SOCKET true
+ENV HOME ${DAPPER_SOURCE}
+ENV GO111MODULE on
+WORKDIR ${DAPPER_SOURCE}
+
+ENTRYPOINT ["sh", "./scripts/entry"]
+CMD ["ci"]

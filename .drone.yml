@@ -1,4 +1,5 @@
 kind: pipeline
+type: docker
 name: linux-amd64
 
 platform:
@@ -8,6 +9,8 @@ platform:
 steps:
   - name: build
     image: rancher/dapper:v0.5.4
+    environment:
+      CROSS: "1"
     commands:
       - dapper ci
     volumes:
@@ -19,9 +22,25 @@ steps:
         - pull_request
         - tag
 
+  - name: install-buildx-support
+    image: tonistiigi/binfmt
+    privileged: true
+    entrypoint:
+      - /usr/bin/binfmt
+    command:
+      - --install
+      - all
+    when:
+      branch:
+        - master
+      event:
+        - tag
+
   - name: docker-publish
-    image: plugins/docker
+    image: thegeeklab/drone-docker-buildx
+    privileged: true
     settings:
+      platforms: linux/amd64,linux/arm64/v8
       dockerfile: package/Dockerfile
       username:
         from_secret: docker_username
@@ -32,6 +51,9 @@ steps:
     when:
       event:
         - tag
+    volumes:
+      - name: docker
+        path: /var/run/docker.sock
 
 volumes:
   - name: docker

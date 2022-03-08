@@ -8,3 +8,13 @@ cd $(dirname $0)/..
 mkdir -p bin
 [ "$(uname)" != "Darwin" ] && LINKFLAGS="-extldflags -static -s"
 CGO_ENABLED=1 go build -ldflags "-X main.VERSION=$VERSION $LINKFLAGS" -o bin/watcher cmd/watcher/main.go
+
+if [ "$CROSS" != "" ]; then
+    for platform in linux/amd64 linux/arm64
+    do
+        os="${platform%/*}"
+        arch="${platform#*/}"
+        mkdir -p "bin/$platform"
+        CGO_ENABLED=1 GOOS=$os GOARCH=$arch go build -ldflags "-X main.VERSION=$VERSION $LINKFLAGS" -o "bin/$platform/watcher" cmd/watcher/main.go
+    done
+fi

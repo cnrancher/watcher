@@ -1,5 +1,8 @@
-FROM alpine:3
-RUN apk update
-RUN apk add curl
-COPY bin/watcher /watcher
+ARG ARCH
+FROM ${ARCH}alpine:3
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+RUN apk update && apk add curl
+ENV TARGETPATH=${TARGETPLATFORM:-"."}
+COPY bin/$TARGETPATH/watcher /watcher
 CMD ["/watcher"]
